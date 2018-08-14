@@ -17,8 +17,10 @@
 
 var config = {
         'port': 8080,
-        'apiHost': process.env.__OW_API_HOST
+        'apiHost': '169.254.1.0' 
 };
+
+console.log("Starting nodejsAction:", config.apiHost, ":", config.port);
 
 var bodyParser = require('body-parser');
 var express    = require('express');
@@ -42,7 +44,13 @@ app.use(function(err, req, res, next) {
     res.status(500).json({ error: "Bad request." });
   });
 
+console.log("Starting service..."); 
+
 service.start(app);
+
+/** SNAPSHOT */
+var os    = require('os');
+os.uptime();
 
 /**
  * Wraps an endpoint written to return a Promise into an express endpoint,

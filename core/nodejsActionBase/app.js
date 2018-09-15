@@ -17,7 +17,7 @@
 
 var config = {
         'port': 8080,
-        'apiHost': '169.254.1.0' 
+        'apiHost': process.env.__OW_API_HOST
 };
 
 console.log("Starting nodejsAction:", config.apiHost, ":", config.port);

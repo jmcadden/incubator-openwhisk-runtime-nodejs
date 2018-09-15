@@ -81,6 +81,9 @@ function NodeActionService(config) {
             if (message.main && message.code && typeof message.main === 'string' && typeof message.code === 'string') {
                 return doInit(message).then(function (result) {
                     setStatus(Status.ready);
+                    /** SNAPSHOT */
+                    var os = require('os');
+                    os.uptime();
                     return responseMessage(200, { OK: true });
                 }).catch(function (error) {
                     var errStr = error.stack ? String(error.stack) : error;

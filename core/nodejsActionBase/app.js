@@ -49,8 +49,9 @@ console.log("Starting service...");
 service.start(app);
 
 /** SNAPSHOT */
-var os    = require('os');
-os.uptime();
+// TODO: Old Snapshot point.
+// var os    = require('os');
+// os.uptime();
 
 /**
  * Wraps an endpoint written to return a Promise into an express endpoint,

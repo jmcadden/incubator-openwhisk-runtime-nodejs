@@ -62,6 +62,9 @@ function NodeActionService(config) {
         server = app.listen(app.get('port'), function() {
             var host = server.address().address;
             var port = server.address().port;
+            /** TODO: Warm SNAPSHOT possibility here. */
+            var os    = require('os');
+            os.uptime();
         });
         //This is required as http server will auto disconnect in 2 minutes, this to not auto disconnect at all
         server.timeout = 0;
@@ -81,7 +84,8 @@ function NodeActionService(config) {
             if (message.main && message.code && typeof message.main === 'string' && typeof message.code === 'string') {
                 return doInit(message).then(function (result) {
                     setStatus(Status.ready);
-                    /** SNAPSHOT */
+
+                    /** HOT SNAPSHOT */
                     var os = require('os');
                     os.uptime();
                     return responseMessage(200, { OK: true });

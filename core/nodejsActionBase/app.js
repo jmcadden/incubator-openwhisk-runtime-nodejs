@@ -39,6 +39,9 @@ app.use(bodyParser.json({ limit: "48mb" }));
 app.post('/init', wrapEndpoint(service.initCode));
 app.post('/run',  wrapEndpoint(service.runCode));
 
+app.post('/preInit',  wrapEndpoint(service.preInitCode));
+app.post('/preRun',   wrapEndpoint(service.preRunCode ));
+
 app.use(function(err, req, res, next) {
     console.error(err.stack);
     res.status(500).json({ error: "Bad request." });

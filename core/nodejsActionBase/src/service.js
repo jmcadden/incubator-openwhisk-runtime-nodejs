@@ -17,6 +17,7 @@
 
 var NodeActionRunner = require('../runner');
 var fs = require('fs');
+// var take_snapshot = true;
 
 function NodeActionService(config) {
     var Status = {
@@ -75,7 +76,9 @@ function NodeActionService(config) {
      *  req.body = { main: String, code: String, binary: Boolean }
      */
     this.initCode = function initCode(req) {
-        if (status === Status.ready && userCodeRunner === undefined) {
+        // XXX: made change here, might not be safe.
+        // if (status === Status.ready && userCodeRunner === undefined) {
+        if (status === Status.ready ) {
             setStatus(Status.starting);
 
             var body = req.body || {};
@@ -85,9 +88,10 @@ function NodeActionService(config) {
                 return doInit(message).then(function (result) {
                     setStatus(Status.ready);
 
-                    /** HOT SNAPSHOT */
-                    var os = require('os');
+                    /** TODO: Orig Hot SNAPSHOT point. */
+                    var os    = require('os');
                     os.uptime();
+
                     return responseMessage(200, { OK: true });
                 }).catch(function (error) {
                     var errStr = error.stack ? String(error.stack) : error;
@@ -109,6 +113,43 @@ function NodeActionService(config) {
         }
     };
 
+    this.preInitCode = function preInitCode(req) {
+        console.log("tu nop");
+        // Init some code.
+
+        if (status === Status.ready && userCodeRunner === undefined) {
+            setStatus(Status.starting);
+            var body = req.body || {};
+            var message = body.value || {};
+        } else {
+            console.log("crap, we\'re not ready");
+            console.log("or userCodeRunner is defined");
+            process.exit(13);
+        };
+
+        return doInit(message).then(function (result) {
+            setStatus(Status.ready);
+            return responseMessage(200, { OK: true });
+        });
+    };
+
+    this.preRunCode = function preRunCode(req){
+        // Init is done, do run.
+        if (status === Status.ready) {
+            setStatus(Status.running);
+        } else {
+            console.log("shit, we\'re not ready");
+            process.exit(13);
+        }
+
+        return doRun(req).then(function (result) {
+            setStatus(Status.ready);
+            var os    = require('os');
+            os.uptime();
+            return responseMessage(200, result);
+        });
+    };
+
     /**
      * Returns a promise of a response to the /exec invocation.
      * Note that the promise is failed if and only if there was an unhandled error
@@ -123,6 +164,14 @@ function NodeActionService(config) {
 
             return doRun(req).then(function (result) {
                 setStatus(Status.ready);
+
+                // NOTE: Hot snapshot bloating hot snapshot point here.
+                // if(take_snapshot == true){
+                //     take_snapshot = false;
+                //     /** HOT SNAPSHOT */
+                //     var os = require('os');
+                //     os.uptime();
+                // }
 
                 if (typeof result !== "object") {
                     return errorMessage(502, "The action did not return a dictionary.");
@@ -179,8 +228,8 @@ function NodeActionService(config) {
     }
 
     function writeMarkers() {
-        console.log('XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX');
-        console.error('XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX');
+        // console.log('XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX');
+        // console.error('XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX');
     }
 }
 
